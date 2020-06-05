@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FlightMobileApp.Controllers
 {
-    [Route("/")]
+    [Route("/api/[controller]")]
     [ApiController]
-    public class ScreenshotController : Controller
+    public class CommandController : Controller
     {
         private ISimulatorConnector _simulatorConnector;
 
-        public ScreenshotController(ISimulatorConnector simulatorConnector)
+        public CommandController(ISimulatorConnector simulatorConnector)
         {
             this._simulatorConnector = simulatorConnector;
         }
@@ -18,9 +18,9 @@ namespace FlightMobileApp.Controllers
         [HttpPost]
         public IActionResult AddServer([FromBody] FlightCommand flightCommand)
         {
-            //if (_simulatorConnector.sendCommand(flightCommand))
-            //    return Ok();
-            //return BadRequest("Could not add server.");
+            if (_simulatorConnector.sendCommands(FlightCommand flightCommand))
+                return Ok();
+            return BadRequest("Could not add server.");
         }
 
     }
