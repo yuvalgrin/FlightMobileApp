@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Drawing;
 using FlightMobileApp.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightMobileApp.Controllers
 {
-    [Route("/")]
+    [Route("/[controller]")]
     [ApiController]
     public class ScreenshotController : Controller
     {
@@ -15,12 +16,14 @@ namespace FlightMobileApp.Controllers
             this._simulatorConnector = simulatorConnector;
         }
 
-        [HttpPost]
-        public IActionResult AddServer([FromBody] FlightCommand flightCommand)
+        [HttpGet]
+        public IActionResult GetScreen()
         {
-            //if (_simulatorConnector.sendCommand(flightCommand))
-            //    return Ok();
-            //return BadRequest("Could not add server.");
+            Byte[] bytes = _simulatorConnector.GetScreenshot();
+            if (bytes != null && bytes.Length > 0)
+                return File(bytes, "image/jpeg");
+
+            return BadRequest("Could not add server.");
         }
 
     }
