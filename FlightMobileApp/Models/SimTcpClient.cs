@@ -10,7 +10,8 @@ using System.Globalization;
 
 public class SimTcpClient
 {
-    private const string OnInitCommand = "data\\n";
+    private const string OnInitCommand = "data\n ";
+    public const string ERR = "ERR";
 
     private string _hostIp { get; set; }
     private int _portSocket { get; set; }
@@ -30,9 +31,11 @@ public class SimTcpClient
             _stream = tcpClient.GetStream();
 
             string resp = RunCommand(OnInitCommand);
-            if (resp != string.Empty)
-                return true;
-            return false;
+
+            if (ERR.Equals(resp))
+                return false;
+
+            return true;
         }
         catch (Exception)
         {

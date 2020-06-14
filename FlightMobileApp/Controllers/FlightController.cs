@@ -6,13 +6,19 @@ namespace FlightMobileApp.Controllers
 {
     [Route("/api/[controller]")]
     [ApiController]
-    public class CommandController : Controller
+    public class FlightController : Controller
     {
         private ISimulatorConnector _simulatorConnector;
 
-        public CommandController(ISimulatorConnector simulatorConnector)
+        public FlightController(ISimulatorConnector simulatorConnector)
         {
             this._simulatorConnector = simulatorConnector;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok("Oops!! This route only supports HTTP POST.");
         }
 
         [HttpPost]

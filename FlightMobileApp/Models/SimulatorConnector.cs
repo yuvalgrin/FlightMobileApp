@@ -17,14 +17,16 @@ namespace FlightMobileApp.Models
 
         public SimulatorConnector(IConfiguration configuration)
         {
-            _hostIp = configuration.GetValue<string>("FlightSim:Host");
-            _httpPort = configuration.GetValue<int>("FlightSim:Port.Http");
-            int socketPort = configuration.GetValue<int>("FlightSim:Port.Socket");
+            // Load the configuration from launchSettings.json
+            _hostIp = configuration.GetValue<string>("FlightSimulator:Host");
+            _httpPort = configuration.GetValue<int>("FlightSimulator:Port.Http");
+            int socketPort = configuration.GetValue<int>("FlightSimulator:Port.Socket");
 
-            //_simTcpClient = new SimTcpClient(_hostIp, socketPort);
-            //_isConnected = _simTcpClient.InitializeConnection();
+            _simTcpClient = new SimTcpClient(_hostIp, socketPort);
+            _isConnected = _simTcpClient.InitializeConnection();
         }
 
+        /* Send commands to simulator return false if got error in simulator */
         public bool SendCommand(FlightCommand flightCommand)
         {
             if (!_isConnected)
@@ -35,41 +37,40 @@ namespace FlightMobileApp.Models
 
             List<string> commands = ExtractValidCommands(flightCommand);
             foreach (string commad in commands) {
-                if (_simTcpClient.RunCommand(commad) == string.Empty)
+                if (SimTcpClient.ERR.Equals(_simTcpClient.RunCommand(commad)))
                     return false;
             }
             return true;
         }
 
+        /* Create the commands to send to the simulator */
         private List<string> ExtractValidCommands(FlightCommand flightCommand)
         {
             List<string> validCommands = new List<string>();
 
-            validCommands.Add("set /controls/flight/aileron " + flightCommand.Aileron + " \\n");
-            validCommands.Add("set /controls/flight/elevator " + flightCommand.Elevator + " \\n");
-            validCommands.Add("set /controls/flight/rudder " + flightCommand.Rudder + " \\n");
-            validCommands.Add("set /controls/flight/throttle " + flightCommand.Throttle + " \\n");
+            validCommands.Add("set /controls/flight/aileron " + flightCommand.Aileron + " \n ");
+            validCommands.Add("set /controls/flight/elevator " + flightCommand.Elevator + " \n ");
+            validCommands.Add("set /controls/flight/rudder " + flightCommand.Rudder + " \n ");
+            validCommands.Add("set /controls/engines/current-engine/throttle " + flightCommand.Throttle + " \n ");
 
             return validCommands;
         }
 
+        /* Get and parse image from the simulator api */
         public Byte[] GetScreenshot()
         {
-            string reqUrl = "http://" + _hostIp + ":" + _httpPort + "/screenshot";
-            Task<Byte[]> task = ExecuteAsyncGet(reqUrl);
-            return task.Result;
+            try
+            {
+                string reqUrl = "http://" + _hostIp + ":" + _httpPort + "/screenshot";
+                Task<Byte[]> task = ExecuteAsyncGet(reqUrl);
+                return task.Result;
+            } catch (Exception)
+            {
+                return null;
+            }
         }
 
-        //public Image byteArrayToImage(byte[] bytesArr)
-        //{
-        //    using (MemoryStream memstr = new MemoryStream(bytesArr))
-        //    {
-        //        Image img = Image.FromStream(memstr);
-        //        return img;
-        //    }
-        //}
-
-        /** Get http async request */
+        /* Get http async request */
         public static async Task<Byte[]> ExecuteAsyncGet(string url)
         {
             using (var client = new HttpClient())

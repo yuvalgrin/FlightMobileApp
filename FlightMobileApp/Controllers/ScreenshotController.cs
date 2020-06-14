@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using FlightMobileApp.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +22,7 @@ namespace FlightMobileApp.Controllers
             if (bytes != null && bytes.Length > 0)
                 return File(bytes, "image/jpeg");
 
-            return BadRequest("Could not add server.");
+            return BadRequest("Could not get screenshot.");
         }
 
     }
