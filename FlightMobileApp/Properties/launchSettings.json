@@ -1,11 +1,11 @@
-﻿{
+{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:62191",
-      "sslPort": 44368
+      "applicationUrl": "http://127.0.0.1:62191",
+      "sslPort": 0
     }
   },
   "profiles": {
@@ -19,10 +19,10 @@
     "FlightMobileApp": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://127.0.0.1:5002"
     }
   }
 }

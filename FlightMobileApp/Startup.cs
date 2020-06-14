@@ -46,7 +46,7 @@ namespace FlightMobileApp
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
@@ -59,9 +59,9 @@ namespace FlightMobileApp
                 endpoints.MapControllers();
             });
 
-            app.UseDefaultFiles();
+            //app.UseDefaultFiles();
 
-            app.UseStaticFiles();
+            //app.UseStaticFiles();
         }
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FlightMobileApp.Models
 {
-    public class SimulatorConnector
+    public class SimulatorConnector : ISimulatorConnector
     {
         private string _hostIp;
         private int _httpPort;
@@ -21,8 +21,8 @@ namespace FlightMobileApp.Models
             _httpPort = configuration.GetValue<int>("FlightSim:Port.Http");
             int socketPort = configuration.GetValue<int>("FlightSim:Port.Socket");
 
-            _simTcpClient = new SimTcpClient(_hostIp, socketPort);
-            _isConnected = _simTcpClient.InitializeConnection();
+            //_simTcpClient = new SimTcpClient(_hostIp, socketPort);
+            //_isConnected = _simTcpClient.InitializeConnection();
         }
 
         public bool SendCommand(FlightCommand flightCommand)
@@ -55,19 +55,19 @@ namespace FlightMobileApp.Models
 
         public Byte[] GetScreenshot()
         {
-            string reqUrl = "https://" + _hostIp + ":" + _httpPort + "/screenshot";
+            string reqUrl = "http://" + _hostIp + ":" + _httpPort + "/screenshot";
             Task<Byte[]> task = ExecuteAsyncGet(reqUrl);
             return task.Result;
         }
 
-        public Image byteArrayToImage(byte[] bytesArr)
-        {
-            using (MemoryStream memstr = new MemoryStream(bytesArr))
-            {
-                Image img = Image.FromStream(memstr);
-                return img;
-            }
-        }
+        //public Image byteArrayToImage(byte[] bytesArr)
+        //{
+        //    using (MemoryStream memstr = new MemoryStream(bytesArr))
+        //    {
+        //        Image img = Image.FromStream(memstr);
+        //        return img;
+        //    }
+        //}
 
         /** Get http async request */
         public static async Task<Byte[]> ExecuteAsyncGet(string url)
