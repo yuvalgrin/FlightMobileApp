@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -14,6 +15,7 @@ namespace FlightMobileApp.Models
         private int _httpPort;
         private SimTcpClient _simTcpClient;
         private bool _isConnected = false;
+        private ConcurrentDictionary<string, double> _lastCommands;
 
         public SimulatorConnector(IConfiguration configuration)
         {
@@ -24,6 +26,7 @@ namespace FlightMobileApp.Models
 
             _simTcpClient = new SimTcpClient(_hostIp, socketPort);
             _isConnected = _simTcpClient.InitializeConnection();
+            _lastCommands = new ConcurrentDictionary<string, double>();
         }
 
         /* Send commands to simulator return false if got error in simulator */
@@ -37,7 +40,8 @@ namespace FlightMobileApp.Models
 
             List<string> commands = ExtractValidCommands(flightCommand);
             foreach (string commad in commands) {
-                if (SimTcpClient.ERR.Equals(_simTcpClient.RunCommand(commad)))
+                var res = _simTcpClient.RunCommand(commad);
+                if (res == null || SimTcpClient.ERR.Equals(res))
                     return false;
             }
             return true;
@@ -47,13 +51,35 @@ namespace FlightMobileApp.Models
         private List<string> ExtractValidCommands(FlightCommand flightCommand)
         {
             List<string> validCommands = new List<string>();
+            if (isNewCommand("aileron", flightCommand.Aileron))
+                validCommands.Add("set /controls/flight/aileron "
+                    + flightCommand.Aileron + " \n ");
 
-            validCommands.Add("set /controls/flight/aileron " + flightCommand.Aileron + " \n ");
-            validCommands.Add("set /controls/flight/elevator " + flightCommand.Elevator + " \n ");
-            validCommands.Add("set /controls/flight/rudder " + flightCommand.Rudder + " \n ");
-            validCommands.Add("set /controls/engines/current-engine/throttle " + flightCommand.Throttle + " \n ");
+            if (isNewCommand("elevator", flightCommand.Elevator))
+                validCommands.Add("set /controls/flight/elevator "
+                    + flightCommand.Elevator + " \n ");
+
+            if (isNewCommand("rudder", flightCommand.Rudder))
+                validCommands.Add("set /controls/flight/rudder "
+                    + flightCommand.Rudder + " \n ");
+
+            if (isNewCommand("throttle", flightCommand.Throttle))
+                validCommands.Add("set /controls/engines/current-engine/throttle "
+                    + flightCommand.Throttle + " \n ");
 
             return validCommands;
+        }
+
+        /* Check if we try to send new value or and existing one */
+        private bool isNewCommand(string type, double value)
+        {
+            _lastCommands.TryGetValue(type, out Double oldValue);
+            if (oldValue != value)
+            {
+                _lastCommands[type] = value;
+                return true;
+            }
+            return false;
         }
 
         /* Get and parse image from the simulator api */

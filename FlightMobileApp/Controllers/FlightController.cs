@@ -18,16 +18,16 @@ namespace FlightMobileApp.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Oops!! This route only supports HTTP POST.");
+            return Ok(new Response("Oops!! This route only supports HTTP POST."));
         }
 
         [HttpPost]
         public IActionResult SendCommand([FromBody] FlightCommand flightCommand)
         {
             if (_simulatorConnector.SendCommand(flightCommand))
-                return Ok();
+                return Ok(new Response("Success"));
 
-            return BadRequest("Could not add server.");
+            return BadRequest(new Response("Could not add server."));
         }
 
     }

@@ -73,7 +73,7 @@ public class SimTcpClient
         }
         catch (Exception)
         {
-            return string.Empty;
+            return null;
         }
     }
 

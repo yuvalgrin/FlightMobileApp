@@ -22,7 +22,7 @@ namespace FlightMobileApp.Controllers
             if (bytes != null && bytes.Length > 0)
                 return File(bytes, "image/jpeg");
 
-            return BadRequest("Could not get screenshot.");
+            return BadRequest(new Response("Could not get screenshot."));
         }
 
     }
