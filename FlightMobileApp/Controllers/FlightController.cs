@@ -27,7 +27,7 @@ namespace FlightMobileApp.Controllers
             if (_simulatorConnector.SendCommand(flightCommand))
                 return Ok(new Response("Success"));
 
-            return BadRequest(new Response("Could not add server."));
+            return BadRequest(new Response("Could not send command."));
         }
 
     }
