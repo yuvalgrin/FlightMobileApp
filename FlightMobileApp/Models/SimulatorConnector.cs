@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FlightMobileWeb.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace FlightMobileApp.Models
@@ -38,34 +39,32 @@ namespace FlightMobileApp.Models
                     return false;
             }
 
-            List<string> commands = ExtractValidCommands(flightCommand);
-            foreach (string commad in commands) {
-                var res = _simTcpClient.RunCommand(commad);
-                if (res == null || SimTcpClient.ERR.Equals(res))
+            List<Command> commands = ExtractValidCommands(flightCommand);
+            foreach (Command commad in commands)
+            {
+                bool res = _simTcpClient.RunCommandAndVerify(commad);
+                if (!res)
                     return false;
             }
             return true;
         }
 
         /* Create the commands to send to the simulator */
-        private List<string> ExtractValidCommands(FlightCommand flightCommand)
+        private List<Command> ExtractValidCommands(FlightCommand flightCommand)
         {
-            List<string> validCommands = new List<string>();
+            List<Command> validCommands = new List<Command>();
             if (isNewCommand("aileron", flightCommand.Aileron))
-                validCommands.Add("set /controls/flight/aileron "
-                    + flightCommand.Aileron + " \n ");
+                validCommands.Add(new Command("/controls/flight/aileron", flightCommand.Aileron));
 
             if (isNewCommand("elevator", flightCommand.Elevator))
-                validCommands.Add("set /controls/flight/elevator "
-                    + flightCommand.Elevator + " \n ");
+                validCommands.Add(new Command("/controls/flight/elevator", flightCommand.Elevator));
 
             if (isNewCommand("rudder", flightCommand.Rudder))
-                validCommands.Add("set /controls/flight/rudder "
-                    + flightCommand.Rudder + " \n ");
+                validCommands.Add(new Command("/controls/flight/rudder", flightCommand.Rudder));
 
             if (isNewCommand("throttle", flightCommand.Throttle))
-                validCommands.Add("set /controls/engines/current-engine/throttle "
-                    + flightCommand.Throttle + " \n ");
+                validCommands.Add(new Command("/controls/engines/current-engine/throttle",
+                    flightCommand.Throttle));
 
             return validCommands;
         }
@@ -90,7 +89,8 @@ namespace FlightMobileApp.Models
                 string reqUrl = "http://" + _hostIp + ":" + _httpPort + "/screenshot";
                 Task<Byte[]> task = ExecuteAsyncGet(reqUrl);
                 return task.Result;
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 return null;
             }
